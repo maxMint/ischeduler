@@ -1,0 +1,126 @@
+@using TimeForYou.Helpers
+@using TimeForYou.Model
+@using TimeForYou.Utilities
+@model Client
+CODE EXAMPLE
+@{
+var action = ViewData["Action"].ToString();
+} <script type="text/javascript">
+function onStatusChange() {
+    var status = $('#status').data("kendoDropDownList").text();
+    var row = $("tr#subStatus");
+    if (status == 'Prospective' || status == 'Inactive') {
+        row.show('slow');
+    } else {
+        row.hide('slow');
+    }
+}
+function getSubStatusesData() {
+    return { "statusId": $('#status').val() };  }
+</script>
+@using (Html.BeginForm(action, "Client", FormMethod.Post, new { id = "editProfileForm" }))
+
+
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Id)
+    <div id="editProfile" class="profile-block">
+        <table class="profile-info profile">
+            <tr>
+                <td>status:</td>
+                <td>
+                    @Html.Hidden("oldStatus", Model.Status != null ? Model.Status.Name : String.Empty)
+                    @(Html.Kendo().DropDownListFor(model => model.Status.Id).HtmlAttributes(new { id = "status" })
+                    .DataTextField("Name").DataValueField("Id").BindTo(GlobalVariables.ClientStatuses).Events(events =>
+                    events.Change("onStatusChange")))
+                </td> </tr>
+                <tr id="subStatus" style="@(Model.HasSubStatus ? String.Empty : "display:none")">
+                    <td></td>
+                    <td>
+                        @(Html.Kendo().DropDownListFor(model => model.SubStatus.Id).DataTextField("Name").DataValueField("Id")
+                        .DataSource(ds => ds.Read(read => read.Action("GetSubStatuses",
+                        "Client").Type(HttpVerbs.Post).Data("getSubStatusesData")).ServerFiltering(true))
+                    </td> </tr>
+                    .Enable(false).CascadeFrom("status"))
+                    <tr>
+                        <td>title:</td>
+                        <td>@Html.Kendo().DropDownListFor(model =>
+                            model.ContactInformation.Title.Id).DataTextField("Name").DataValueField("Id").BindTo(GlobalVariables.GetDictionaryItems(DictionaryType.Title))<
+                            /td>
+                        </tr>
+                        <tr>
+                            <td>first name:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.FirstName, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>surname:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.LastName, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>address:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.Address, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>address 2:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.Address2, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>town:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.Town, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>county:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.County, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>postal code:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.PostalCode, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>notes:</td>
+                            <td>@Html.TextAreaFor(model => model.ContactInformation.Notes, new { @class = "inp" })</td>
+                        </tr>
+                    </table>
+                    <table class="profile-info settings">
+                        <tr>
+                            <td>primary phone:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.PrimaryPhone, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>secondary phone:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.SecondaryPhone, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>other phone:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.OtherPhone, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>email address:</td>
+                            <td>@Html.TextBoxFor(model => model.ContactInformation.Email, new { @class = "inp" })</td>
+                        </tr>
+                        <tr>
+                            <td>source:</td>
+                            <td>
+                                <span class="dropdown">@Html.Kendo().DropDownListFor(model =>
+                                    model.Source.Id).DataTextField("Name").DataValueField("Id").BindTo(GlobalVariables.GetDictionaryItems(DictionaryType.Source))</span>
+                                </td> </tr>
+                                <tr>
+                                    <td>missed/sick hours:</td>
+                                    <td>
+                                        @Html.Kendo().NumericTextBoxFor(model => model.MissedHours).Min(0).Step(0.5).Format("{0:n1}").Value(Model.MissedHours)
+                                    </td> </tr>
+                                    <tr>
+                                        <td>ironing:</td>
+                                        <td>
+                                            @Html.CheckBoxFor(model => model.Ironing)
+                                        </td> </tr>
+                                        <tr class="pref-block">
+                                            <td>preferences: <input type="button" id="addPref" class="add" /></td>
+                                            <td id="prefs">
+                                                @for (int i = 0; i < (Model.Preferences ?? new List<Preference>()).Count; i++)
+                                                {
+                                                @Html.EditorFor(model => model.Preferences[i])
+                                            } </td>
+                                        </tr>
+                                    </table>
+                                </div> }
